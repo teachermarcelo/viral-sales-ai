@@ -10,6 +10,8 @@ Painel pessoal de inteligência de marketing, produtos, campanhas e rastreamento
 - Cadastro, listagem e exclusão de produtos no PostgreSQL.
 - Cadastro e listagem de campanhas no PostgreSQL.
 - Criação de links rastreáveis persistidos no banco.
+- Links associados a produto/campanha e parâmetros UTM de origem.
+- Edge Function v2 grava origem, mídia e campanha nos eventos de clique.
 - Cadastro e gestão de leads com status e registro de consentimento.
 - Registro de vendas, valores e status (manual nesta etapa).
 - Dashboard com cliques reais dos últimos sete dias e receita confirmada.

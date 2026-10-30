@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171329"><title>VIRAL SALES AI</title>
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="auth-screen" class="auth-screen">
+    <form id="auth-form" class="auth-card">
+      <div class="brand-mark">✦</div><p class="eyebrow">INTELLIGENCE · TRAFFIC · CONVERSION</p>
+      <h1>VIRAL SALES <span>AI</span></h1><p class="muted">Sua central inteligente de marketing e vendas.</p>
+      <label>E-mail<input id="email" type="email" required autocomplete="username" placeholder="voce@email.com"></label>
+      <label>Senha<input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="Mínimo de 6 caracteres"></label>
+      <div class="auth-actions"><button type="submit" class="btn primary" id="login-btn">Entrar</button><button type="button" class="btn ghost" id="signup-btn">Criar conta</button></div>
+      <p id="auth-message" class="message">Configure seu Supabase em Configurações para ativar contas na nuvem. Você também pode testar em modo local.</p>
+      <button type="button" id="local-mode" class="text-button">Continuar em modo local de demonstração</button>
+    </form>
+  </div>
+  <div id="app" class="app-shell hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark small">✦</span><span>VIRAL SALES <b>AI</b><small>GROWTH COMMAND CENTER</small></span></a>
+      <nav id="nav">
+        <button class="nav-item active" data-view="overview">▦ <span>Visão geral</span></button>
+        <button class="nav-item" data-view="products">◇ <span>Produtos</span></button>
+        <button class="nav-item" data-view="campaigns">◉ <span>Campanhas</span></button>
+        <button class="nav-item" data-view="tracking">↗ <span>Rastreamento</span></button>
+        <button class="nav-item" data-view="insights">✧ <span>Inteligência de mercado</span></button>
+        <button class="nav-item" data-view="settings">⚙ <span>Configurações</span></button>
+      </nav>
+      <div class="sidebar-bottom"><div class="status-dot"></div><span id="connection-label">Modo local</span><button id="logout-btn" class="logout">Sair</button></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><p class="eyebrow">PAINEL DE CONTROLE</p><h2 id="view-title">Visão geral</h2></div><div class="top-actions"><span id="user-label" class="muted">Workspace pessoal</span><button class="avatar">VS</button></div></header>
+      <section id="view-content"></section>
+      <footer>VIRAL SALES AI <span>•</span> Primeira versão · Dados sob seu controle</footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script type="module" src="assets/js/app.js"></script>
+</body></html>

@@ -2,48 +2,57 @@
 
 Painel pessoal de inteligência de marketing, produtos, campanhas e rastreamento.
 
-## Primeira versão
+## Estado da primeira versão
 
-- Interface responsiva em português.
-- Modo local para testar produtos e campanhas sem configurar backend.
-- Cadastro de produtos e campanhas.
-- Geração de links rastreáveis por produto.
-- Painel inicial com indicadores.
-- Radar de pesquisa com atalhos para fontes públicas.
-- Exportação de backup JSON.
-- Estrutura SQL isolada com prefixo `vsa_` e políticas RLS por usuário.
+- Dashboard responsivo em português.
+- Login e cadastro via Supabase Auth.
+- Modo local para demonstração.
+- Cadastro, listagem e exclusão de produtos no PostgreSQL.
+- Cadastro e listagem de campanhas no PostgreSQL.
+- Criação de links rastreáveis persistidos no banco.
+- Edge Function pública `vsa-track-click` registra cliques de visitantes e devolve o destino cadastrado no banco.
+- Radar inicial com atalhos de pesquisa pública.
+- Exportação de backup JSON dos dados carregados.
+- Tabelas isoladas com prefixo `vsa_` e políticas RLS.
 
-## Tecnologias
+## Projeto Supabase conectado
 
-- HTML, CSS e JavaScript (sem etapa de build).
-- Supabase Auth e PostgreSQL.
-- GitHub para versionamento e Cloudflare Pages (ou hospedagem estática equivalente).
+- Project ref: `nuyzvpkvawixidotuuio`
+- URL: `https://nuyzvpkvawixidotuuio.supabase.co`
+- Edge Function: `vsa-track-click`
 
-## Executar
+A chave publishable do projeto está configurada no frontend. Ela é uma chave pública de cliente, não uma chave administrativa. O acesso aos dados autenticados é limitado por RLS.
 
-Abra `index.html` localmente ou use um servidor estático, por exemplo:
+## Estrutura
+
+- `index.html`: login e painel.
+- `assets/css/app.css`: identidade visual responsiva.
+- `assets/js/app.js`: autenticação, CRUD e dashboard.
+- `track.html`: página pública de redirecionamento rastreável.
+- `supabase/migrations/20261030_vsa_initial_schema.sql`: tabelas e políticas.
+- `supabase/functions/vsa-track-click/index.ts`: fonte da Edge Function (a função já foi implantada no projeto Supabase).
+
+## Executar localmente
 
 ```bash
 python -m http.server 8000
 ```
 
-Acesse `http://localhost:8000`.
+Abra `http://localhost:8000`.
 
-## Configurar Supabase
+## Configuração de autenticação
 
-1. Selecione um projeto Supabase dedicado ou explicitamente aprovado para o VIRAL SALES AI.
-2. Revise `supabase/migrations/20261030_vsa_initial_schema.sql`.
-3. Execute a migração no SQL Editor do projeto escolhido.
-4. Em **Configurações** no app, informe Project URL e Publishable key.
-5. Ative confirmação de e-mail e configure URLs de redirecionamento do Auth para o endereço publicado.
-6. Teste com uma conta própria antes de inserir dados reais.
+No Supabase Dashboard, abra Authentication > URL Configuration e configure:
+- Site URL: endereço final da aplicação.
+- Redirect URLs: endereço final e localhost usado nos testes.
 
-**Importante:** a migração cria apenas tabelas com prefixo `vsa_`. Ela não altera tabelas existentes. A chave publicável pode ser usada no navegador somente com RLS e políticas corretas. Nunca exponha `service_role`, chaves secretas, senhas ou tokens privados.
+Se a confirmação de e-mail estiver habilitada, confirme o e-mail antes do primeiro login.
 
-## Limitações desta versão
+## Segurança e limitações
 
-- O modo local guarda dados apenas no navegador e dispositivo atual.
-- O link de rastreamento desta versão registra uma demonstração local; rastreamento centralizado entre visitantes/dispositivos requer endpoint server-side/Edge Function.
-- Integrações sociais e publicação automática ainda não estão conectadas.
-- Dados demográficos e métricas de plataformas dependem de APIs oficiais, permissões e disponibilidade.
-- Não há promessa de viralização nem de alcance garantido.
+- Nunca exponha chaves secretas ou service role no navegador.
+- A Edge Function usa credencial administrativa apenas no ambiente server-side do Supabase.
+- O endpoint de clique é público por natureza; antes de campanhas de grande escala, adicionar rate limiting, proteção anti-bot e monitoramento de abuso.
+- O rastreamento registra cliques em links da plataforma. Não identifica nominalmente visitantes anônimos nem substitui métricas oficiais das redes sociais.
+- Integrações sociais, pagamentos, captura de leads com consentimento, relatórios por IA e análise preditiva ainda serão implementados em fases seguintes.
+- Não há promessa de viralização ou alcance garantido.

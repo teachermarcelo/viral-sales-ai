@@ -10,6 +10,9 @@ Painel pessoal de inteligência de marketing, produtos, campanhas e rastreamento
 - Cadastro, listagem e exclusão de produtos no PostgreSQL.
 - Cadastro e listagem de campanhas no PostgreSQL.
 - Criação de links rastreáveis persistidos no banco.
+- Cadastro e gestão de leads com status e registro de consentimento.
+- Registro de vendas, valores e status (manual nesta etapa).
+- Dashboard com cliques reais dos últimos sete dias e receita confirmada.
 - Edge Function pública `vsa-track-click` registra cliques de visitantes e devolve o destino cadastrado no banco.
 - Radar inicial com atalhos de pesquisa pública.
 - Exportação de backup JSON dos dados carregados.

@@ -40,13 +40,19 @@
     form.onsubmit=async e=>{
       e.preventDefault();
       const sb=client(),s=await session(sb);
-      if(!s){toast("Entre na sua conta para salvar o produto na nuvem.");return;}
       const d=Object.fromEntries(new FormData(form));
       const payload={name:d.name.trim(),niche:d.niche.trim(),price:Number(d.price)||0,cost:Number(d.cost)||0,destination_url:d.url.trim()||null,checkout_provider:d.checkout_provider.trim()||null,image_url:d.image_url.trim()||null,product_status:d.product_status,description:d.description.trim()||null,target_audience:d.target_audience.trim()||null,benefits:d.benefits.trim()||null};
       const button=form.querySelector('button[type="submit"]');button.disabled=true;button.textContent="Salvando...";
       try {
-        let q=x?sb.from("vsa_products").update(payload).eq("id",x.id):sb.from("vsa_products").insert({...payload,user_id:s.user.id});
-        const {error}=await q;if(error)throw error;
+        if(s?.user){
+          const q=x?sb.from("vsa_products").update(payload).eq("id",x.id):sb.from("vsa_products").insert({...payload,user_id:s.user.id});
+          const {error}=await q;if(error)throw error;
+        } else {
+          const key="vsa_products_v1";let rows=[];try{rows=JSON.parse(localStorage.getItem(key)||"[]")}catch{}
+          if(x)rows=rows.map(p=>p.id===x.id?{...p,...payload}:p);
+          else rows.push({...payload,id:crypto.randomUUID(),created_at:new Date().toISOString()});
+          localStorage.setItem(key,JSON.stringify(rows));
+        }
         toast(x?"Produto atualizado":"Produto salvo com sucesso");
         slot.innerHTML="";
         document.querySelector('[data-view="products"]')?.click();

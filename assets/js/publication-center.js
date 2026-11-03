@@ -47,7 +47,8 @@
       if (msg) msg.textContent = "A Meta retornou sucesso. Estamos aguardando a confirmação dos dados da Página e do Instagram.";
     } else if (oauthResult === "error") {
       const msg = $("#vsa-meta-connect-message");
-      if (msg) msg.textContent = "A Meta não concluiu a autorização. Verifique as permissões do aplicativo e tente novamente.";
+      const reason = new URLSearchParams(location.search).get("reason");
+      if (msg) msg.textContent = "Falha na autorização: " + (reason || "Verifique as permissões do aplicativo e tente novamente.");
     }
     loadProducts();
     loadDrafts();
@@ -64,7 +65,18 @@
       const {data:auth}=await client.auth.getSession();
       if(!auth?.session?.access_token)throw new Error("Entre com sua conta do VIRAL SALES AI antes de conectar a Meta.");
       const {data,error}=await client.functions.invoke("vsa-meta-oauth-start",{body:{}});
-      if(error)throw new Error(error.message||"Não foi possível iniciar a autorização.");
+      if(error){
+        let detail=error.message||"Não foi possível iniciar a autorização.";
+        if(error.context && typeof error.context.clone==="function"){
+          try{
+            const body=await error.context.clone().json();
+            if(body?.missing?.length)detail+=" Configuração ausente no servidor: "+body.missing.join(", ")+".";
+            else if(body?.detail)detail+=" Detalhe: "+body.detail;
+            else if(body?.error)detail+=" "+body.error;
+          }catch{}
+        }
+        throw new Error(detail);
+      }
       const authUrl=data?.auth_url||data?.url;
       if(!authUrl)throw new Error(data?.error||"A função não retornou o endereço de autorização.");
       if(msg)msg.textContent="Redirecionando para a autorização oficial da Meta...";

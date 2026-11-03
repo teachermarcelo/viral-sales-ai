@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171329"><title>Material gratuito | VIRAL SALES AI</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#201a36;background:#f5f4fb}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}.shell{width:min(100%,980px);display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid #e9e5f4;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px #25164b12}.visual{background:linear-gradient(145deg,#211738,#6241a5);color:#fff;padding:48px;display:flex;flex-direction:column;justify-content:center}.eyebrow{font-size:11px;letter-spacing:2px;font-weight:800;color:#c8b6ff}.visual h1{font-size:clamp(30px,4vw,46px);line-height:1.08;margin:16px 0}.visual p{color:#e3dcf4;line-height:1.7}.form{padding:42px}.form h2{margin:0 0 8px;font-size:25px}.muted{color:#777187;line-height:1.5}.field{display:block;margin:17px 0;font-size:13px;font-weight:700}.field input{display:block;width:100%;margin-top:7px;padding:14px;border:1px solid #ddd7eb;border-radius:10px;font:inherit;font-weight:400}.consent{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:#625c70;line-height:1.5;margin:18px 0}.consent input{margin-top:3px}.btn{width:100%;border:0;border-radius:11px;background:#704ee0;color:#fff;font-weight:800;padding:15px;font-size:15px;cursor:pointer}.btn:disabled{opacity:.6;cursor:wait}.message{font-size:13px;line-height:1.5;margin-top:16px}.success{background:#f1edff;padding:18px;border-radius:12px}.success a{color:#5e3bc5;font-weight:800;display:inline-block;margin-top:12px}.hp{position:absolute;left:-9999px}@media(max-width:720px){.shell{grid-template-columns:1fr}.visual,.form{padding:30px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<section class="visual"><span class="eyebrow">CONTEÚDO GRATUITO</span><h1 id="title">Seu próximo material está aqui.</h1><p id="description">Preencha seus dados para receber o material gratuito.</p><p>Conteúdo preparado para ajudar você a aprender, ensinar e colocar novas ideias em prática.</p></section>
+<section class="form"><div id="form-area"><h2>Receba seu material gratuito</h2><p class="muted">Informe seus dados. O link para acessar o material será apresentado após o cadastro.</p>
+<form id="lead-form">
+<label class="field">Seu nome<input name="name" autocomplete="name" required maxlength="120" placeholder="Como podemos chamar você?"></label>
+<label class="field">E-mail<input name="email" type="email" autocomplete="email" maxlength="254" placeholder="voce@email.com"></label>
+<label class="field">WhatsApp<input name="whatsapp" type="tel" autocomplete="tel" maxlength="30" placeholder="(DDD) 99999-9999"></label>
+<label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+<label class="consent"><input name="consent" type="checkbox" required><span>Quero receber o material solicitado e aceito receber conteúdos e ofertas relacionados. Sei que posso cancelar essas comunicações a qualquer momento.</span></label>
+<button class="btn" id="submit" type="submit">Quero receber gratuitamente</button><p class="message muted" id="message" aria-live="polite">Seus dados serão usados para entregar o material e registrar seu pedido.</p>
+</form></div></section>
+</main>
+<script>
+const API="https://nuyzvpkvawixidotuuio.supabase.co/functions/v1/vsa-lead-capture";
+const slug=new URLSearchParams(location.search).get("slug")||"";
+const form=document.querySelector("#lead-form"),button=document.querySelector("#submit"),message=document.querySelector("#message");
+let magnet=null;
+const attribution=()=>{const q=new URLSearchParams(location.search);return{source:q.get("utm_source")||"direct",medium:q.get("utm_medium")||"",campaign:q.get("utm_campaign")||"",content:q.get("utm_content")||"",term:q.get("utm_term")||"",referrer:document.referrer||""}};
+(async()=>{try{const r=await fetch(API+"?slug="+encodeURIComponent(slug));const d=await r.json();if(!r.ok)throw new Error(d.error||"Material não encontrado.");magnet=d.lead_magnet;document.title=magnet.title+" | Material gratuito";document.querySelector("#title").textContent=magnet.title;document.querySelector("#description").textContent=magnet.description||"Cadastre-se gratuitamente para acessar este material."}catch(e){document.querySelector("#form-area").innerHTML='<h2>Material indisponível</h2><p class="muted">'+e.message+'</p>'}})();
+form.addEventListener("submit",async e=>{e.preventDefault();if(!magnet)return;const data=Object.fromEntries(new FormData(form));button.disabled=true;button.textContent="Enviando...";message.textContent="Registrando seu pedido com segurança...";try{const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...data,slug,attribution:attribution()})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Não foi possível concluir.");document.querySelector("#form-area").innerHTML='<div class="success"><h2>Cadastro realizado!</h2><p class="muted">'+(d.message||"Seu material está pronto.")+'</p><a href="'+d.asset_url+'" target="_blank" rel="noopener">ABRIR MEU MATERIAL ↗</a></div>'}catch(err){message.textContent=err.message;button.disabled=false;button.textContent="Quero receber gratuitamente"}});
+</script>
+</body></html>

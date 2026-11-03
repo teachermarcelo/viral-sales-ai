@@ -14,13 +14,13 @@
       <div class="audience-hero"><div><span class="hero-kicker">ORGANIC CONTENT · META ADS</span><h2>Crie, aprove e publique em um só lugar.</h2><p>Prepare conteúdos para Instagram e Facebook e organize campanhas pagas. Nada será enviado à Meta sem sua aprovação explícita.</p></div><div class="audience-hero-mark">✦</div></div>
       <div class="card form-card" style="margin-top:16px">
         <div class="panel-heading"><div><span class="section-kicker">ETAPA 1 · CONEXÃO</span><h3>Contas Meta</h3></div><span class="panel-tag">CONFIGURAÇÃO PENDENTE</span></div>
-        <div class="notice"><b>Leitura de anúncios já configurada.</b><p>A conexão atual usa <code>ads_read</code>, que permite consultar campanhas, mas não publicar posts nem criar anúncios. A publicação orgânica exige permissões próprias do Instagram/Facebook; anúncios exigem <code>ads_management</code>.</p></div>
+        <div class="notice"><b>Conecte suas contas Meta.</b><p>Autorize o acesso à Página do Facebook e ao Instagram profissional vinculado. Os tokens serão processados e armazenados no Supabase; não serão exibidos no navegador.</p></div>
         <div class="form-grid">
-          <div class="field"><b>Instagram</b><p class="muted">A conta precisa ser profissional (Empresa ou Criador). Para o fluxo Facebook Login, deve estar vinculada a uma Página.</p><span class="pill">Aguardando autorização de publicação</span></div>
-          <div class="field"><b>Facebook</b><p class="muted">A Página precisa conceder acesso para criar conteúdo.</p><span class="pill">Aguardando autorização de publicação</span></div>
+          <div class="field"><b>Instagram</b><p class="muted">Conta profissional (Empresa ou Criador) vinculada a uma Página do Facebook.</p><span class="pill" id="vsa-ig-status">Aguardando autorização</span></div>
+          <div class="field"><b>Facebook</b><p class="muted">Selecione e autorize a Página que administra.</p><span class="pill" id="vsa-page-status">Aguardando autorização</span></div>
         </div>
-        <p class="muted" style="margin-top:12px">Próximo passo técnico: configurar OAuth da Meta no app e solicitar os escopos adequados. O token será armazenado somente no Supabase, nunca no navegador.</p>
-        <a class="btn ghost" href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">Abrir Meta for Developers</a>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px"><button class="btn primary" type="button" id="vsa-meta-connect">Conectar Facebook e Instagram</button><a class="btn ghost" href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">Abrir Meta for Developers</a></div>
+        <p class="muted" id="vsa-meta-connect-message" style="margin-top:10px" aria-live="polite">A autorização ainda precisa ser testada. A Meta pode exigir análise e liberação de permissões.</p>
       </div>
       <div class="card form-card" style="margin-top:16px">
         <div class="panel-heading"><div><span class="section-kicker">ETAPA 2 · CONTEÚDO ORGÂNICO</span><h3>Novo conteúdo</h3></div><span class="panel-tag">RASCUNHO</span></div>
@@ -39,11 +39,40 @@
       </div>
       <div class="card" style="margin-top:16px"><div class="panel-heading"><div><span class="section-kicker">ETAPA 3 · APROVAÇÃO</span><h3>Fila de publicações</h3></div><button class="btn ghost" id="vsa-pub-refresh">Atualizar</button></div><div id="vsa-pub-list"><p class="muted">Carregando rascunhos...</p></div></div>
       <div class="card form-card" style="margin-top:16px"><div class="panel-heading"><div><span class="section-kicker">ETAPA 4 · ANÚNCIOS PAGOS</span><h3>Meta Ads</h3></div><span class="panel-tag">PUBLICAÇÃO BLOQUEADA ATÉ AUTORIZAÇÃO</span></div><p class="muted">O próximo módulo reaproveitará seus produtos, públicos e criativos para montar campanha, conjunto de anúncios e anúncio. Você revisará orçamento, segmentação, posicionamentos e criativo antes de aprovar o envio para a conta Fluentimmersion.</p><button class="btn ghost" type="button" id="vsa-open-meta">Ver conexão de anúncios</button></div>`;
+    const connectBtn = $("#vsa-meta-connect");
+    if (connectBtn) connectBtn.onclick = startMetaOAuth;
+    const oauthResult = new URLSearchParams(location.search).get("meta_oauth");
+    if (oauthResult === "connected") {
+      const msg = $("#vsa-meta-connect-message");
+      if (msg) msg.textContent = "A Meta retornou sucesso. Estamos aguardando a confirmação dos dados da Página e do Instagram.";
+    } else if (oauthResult === "error") {
+      const msg = $("#vsa-meta-connect-message");
+      if (msg) msg.textContent = "A Meta não concluiu a autorização. Verifique as permissões do aplicativo e tente novamente.";
+    }
     loadProducts();
     loadDrafts();
     $("#vsa-pub-form").addEventListener("submit", saveDraft);
     $("#vsa-pub-refresh").onclick = loadDrafts;
     $("#vsa-open-meta").onclick = () => document.querySelector('[data-view="meta"]')?.click();
+  }
+  async function startMetaOAuth(){
+    const btn=$("#vsa-meta-connect"), msg=$("#vsa-meta-connect-message");
+    if(!btn)return;
+    btn.disabled=true;btn.textContent="Preparando conexão...";
+    if(msg)msg.textContent="Solicitando autorização segura ao Supabase...";
+    try{
+      const {data:auth}=await client.auth.getSession();
+      if(!auth?.session?.access_token)throw new Error("Entre com sua conta do VIRAL SALES AI antes de conectar a Meta.");
+      const {data,error}=await client.functions.invoke("vsa-meta-oauth-start",{body:{}});
+      if(error)throw new Error(error.message||"Não foi possível iniciar a autorização.");
+      const authUrl=data?.auth_url||data?.url;
+      if(!authUrl)throw new Error(data?.error||"A função não retornou o endereço de autorização.");
+      if(msg)msg.textContent="Redirecionando para a autorização oficial da Meta...";
+      location.assign(authUrl);
+    }catch(err){
+      if(msg)msg.textContent="Não foi possível iniciar: "+err.message;
+      btn.disabled=false;btn.textContent="Conectar Facebook e Instagram";
+    }
   }
   async function loadProducts(){
     const select = $('[name="product_id"]');
